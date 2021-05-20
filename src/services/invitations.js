@@ -1,7 +1,7 @@
 import fetch from 'node-fetch';
 const url = 'https://candidate.hubteam.com/candidateTest/v3/problem/result?userKey=76d1f87164559ae4dabbaf752f14';
 
-export default async (data) => {
+export default async function get(data) {
     try {
         const options = {
             method: 'post',
