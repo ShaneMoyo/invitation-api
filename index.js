@@ -9,10 +9,33 @@ const get = async() => {
     }
 }
 
+class Partner { 
+    constructor({ availableDates, country, email }) { 
+        this.availableDates = availableDates;
+        this.country = country;
+        this.email = email;
+    }
+}
+
+class Country { 
+    constructor(countryName) { 
+        this.name = countryName;
+        this.attendeeCount = 0,
+        this.attendees = [], 
+        this.startDate = null
+    }
+}
+
 // Main transform logic lives here. 
 function transform(partners) { 
-    //TODO: Return correctly trasfromed array of countries
-    return; 
+    const countries = {};
+    const startDates = {};
+
+    partners.forEach(partnerData => {
+        const partner = new Partner(partnerData); 
+        if (!countries[partner.country]) countries[partner.country] = new Country(partner.country);
+        console.log('partner: ', partner); 
+    });
 }
 
 function createInvitations(partners) {
