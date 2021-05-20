@@ -56,7 +56,21 @@ function transform(partners) {
         populateStartDatesMap(startDates); 
     });
 
-    console.log('startDates:', startDates)
+    return Object.values(countries).map((country) => {
+        Object.entries(startDates[country.name]).forEach(([startDate, attendees]) => {
+            const shouldUpdateStartDate = attendees.length == country.attendeeCount && moment(country.startDate).isAfter(startDate); 
+            const shouldUpdateAttendeeCount = attendees.length > country.attendeeCount; 
+            if (shouldUpdateAttendeeCount || shouldUpdateStartDate) {
+                country = {
+                    ...country, 
+                    attendees, 
+                    startDate, 
+                    attendeeCount: attendees.length
+                }
+            }
+        });
+        return country;
+    });
 }
 
 function createInvitations(partners) {
@@ -71,6 +85,7 @@ async function app() {
         const { partners } = await get();
         if(partners) {
             const invitations = createInvitations(partners);
+            console.log('invitations: ', invitations)
             //TODO: Post created invitations to api  
         }
     } catch(err) {
