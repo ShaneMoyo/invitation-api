@@ -1,6 +1,6 @@
 import transformPartnersDataToInvitations from './transforms/partners-to-invitations/index.js';
-import { get as fetchPartners } from "./services/partner.js"; 
-import { post as postInvitations } from "./services/invitations.js"; 
+import fetchPartners from "./services/partner.js"; 
+import postInvitations from "./services/invitations.js"; 
 
 export default async function app() {
     try {
