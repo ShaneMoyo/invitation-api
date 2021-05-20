@@ -9,5 +9,17 @@ const get = async() => {
     }
 }
 
-const partners = get().then(res => console.log('res: ', res)); 
+async function app() {
+    try {
+        const partners = await get();
+        if(partners) {
+            console.log('partners: ', partners)
+        }
+    } catch(err) {
+        console.log('error: ', err);
+        return; 
+    }
+    
+}
 
+app(); 
