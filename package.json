@@ -18,7 +18,8 @@
   "homepage": "https://github.com/ShaneMoyo/invitation-api#readme",
   "dependencies": {
     "express": "^4.17.1",
-    "fetch": "^1.1.0",
-    "moment": "^2.29.1"
-  }
+    "moment": "^2.29.1",
+    "node-fetch": "^2.6.1"
+  },
+  "type": "module"
 }
