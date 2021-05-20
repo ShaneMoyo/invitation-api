@@ -70,7 +70,6 @@ async function app() {
     try {
         const { partners } = await get();
         if(partners) {
-            console.log('partners: ', partners); 
             const invitations = createInvitations(partners);
             //TODO: Post created invitations to api  
         }
