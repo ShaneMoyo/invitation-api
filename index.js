@@ -1,4 +1,5 @@
 import fetch from 'node-fetch';
+import moment from 'moment';
 
 const get = async() => {
     try {
@@ -14,6 +15,23 @@ class Partner {
         this.availableDates = availableDates;
         this.country = country;
         this.email = email;
+    }
+
+    populateStartDatesMap = (startDatesPerCountryMap) => {
+        const { availableDates, country, email, hasFollowingDateAvailable } = this; 
+
+        availableDates.forEach(availableDate => {
+            if (hasFollowingDateAvailable(availableDate)) {
+                if (!startDatesPerCountryMap[country]) startDatesPerCountryMap[country] = {};
+                if (!startDatesPerCountryMap[country][availableDate]) startDatesPerCountryMap[country][availableDate] = [];
+                startDatesPerCountryMap[country][availableDate].push(email);
+            }
+        });
+    }
+
+    hasFollowingDateAvailable = (date) => {
+        const followingDay = moment(date, 'YYYY-MM-DD').add(1, 'days').format('YYYY-MM-DD');
+        return this.availableDates.includes(followingDay);
     }
 }
 
@@ -31,11 +49,14 @@ function transform(partners) {
     const countries = {};
     const startDates = {};
 
-    partners.forEach(partnerData => {
-        const partner = new Partner(partnerData); 
-        if (!countries[partner.country]) countries[partner.country] = new Country(partner.country);
-        console.log('partner: ', partner); 
+    partners.forEach(partner => {
+        const { country, populateStartDatesMap  } = new Partner(partner); 
+        if (!countries[country]) countries[country] = new Country(country);
+
+        populateStartDatesMap(startDates); 
     });
+
+    console.log('startDates:', startDates)
 }
 
 function createInvitations(partners) {
