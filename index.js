@@ -9,11 +9,13 @@ const get = async() => {
     }
 }
 
+
 async function app() {
     try {
-        const partners = await get();
+        const { partners } = await get();
         if(partners) {
             console.log('partners: ', partners)
+            
         }
     } catch(err) {
         console.log('error: ', err);
