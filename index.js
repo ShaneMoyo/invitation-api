@@ -1,30 +1,39 @@
-import fetch from 'node-fetch';
 import moment from 'moment';
-
-const get = async() => {
-    try {
-        const response = await fetch("https://candidate.hubteam.com/candidateTest/v3/problem/dataset?userKey=76d1f87164559ae4dabbaf752f14");
-        return await response.json();
-    } catch (error) {
-        console.log(error);
-    }
-}
+import fetch from 'node-fetch';
 
 const post =  async (data) => {
-    const options = {
-        method: 'post',
-        body: JSON.stringify(data),
-        headers: {'Content-Type': 'application/json'},
-    }
-
     try {
         const response = await fetch('https://candidate.hubteam.com/candidateTest/v3/problem/result?userKey=76d1f87164559ae4dabbaf752f14',
-            options);
+            {
+                method: 'post',
+                body: JSON.stringify(data),
+                headers: {'Content-Type': 'application/json'},
+            });
         return response.json();
     } catch (error) {
         console.log(error);
     }
 }
+
+const get = async() => {
+    try {
+        const response = await fetch("https://candidate.hubteam.com/candidateTest/v3/problem/dataset?userKey=76d1f87164559ae4dabbaf752f14");
+        return response.json();
+    } catch (error) {
+        console.log(error);
+    }
+}
+
+class Country { 
+    constructor(countryName) { 
+        this.name = countryName;
+        this.attendeeCount = 0,
+        this.attendees = [], 
+        this.startDate = null
+    }
+}
+
+ 
 
 class Partner { 
     constructor({ availableDates, country, email }) { 
@@ -33,6 +42,7 @@ class Partner {
         this.email = email;
     }
 
+    //Creates following DS: { "country1": { "date": ["email", "email"] } }
     populateStartDatesMap = (startDatesPerCountryMap) => {
         const { availableDates, country, email, hasFollowingDateAvailable } = this; 
 
@@ -51,17 +61,7 @@ class Partner {
     }
 }
 
-class Country { 
-    constructor(countryName) { 
-        this.name = countryName;
-        this.attendeeCount = 0,
-        this.attendees = [], 
-        this.startDate = null
-    }
-}
-
-// Main transform logic lives here. 
-function transform(partners) { 
+const transform = (partners) => {
     const countries = {};
     const startDates = {};
 
@@ -72,38 +72,39 @@ function transform(partners) {
         populateStartDatesMap(startDates); 
     });
 
-    return Object.values(countries).map((country) => {
-        Object.entries(startDates[country.name]).forEach(([startDate, attendees]) => {
-            const shouldUpdateStartDate = attendees.length == country.attendeeCount && moment(country.startDate).isAfter(startDate); 
-            const shouldUpdateAttendeeCount = attendees.length > country.attendeeCount; 
+    const processCountry = (country) => {
+        Object.entries(startDates[country.name] || []).forEach(([startDate, attendees]) => {
+            const attendeeCount = attendees.length; 
+            const shouldUpdateStartDate = attendeeCount == country.attendeeCount && moment(country.startDate).isAfter(startDate); 
+            const shouldUpdateAttendeeCount = attendeeCount > country.attendeeCount; 
             if (shouldUpdateAttendeeCount || shouldUpdateStartDate) {
                 country = {
                     ...country, 
                     attendees, 
                     startDate, 
-                    attendeeCount: attendees.length
+                    attendeeCount
                 }
             }
         });
         return country;
-    });
+    }
+
+    return Object.values(countries).map(processCountry); 
 }
 
-function createInvitations(partners) {
+function createInvitations({ partners }) {
     if(!partners) return null; 
     const countries = transform(partners);
     return { countries };
 }
 
-
-async function app() {
+export default async function app() {
     try {
-        const { partners } = await get();
+        const partners = await get();
         if(partners) {
             const invitations = createInvitations(partners);
-            //console.log('invitations: ', invitations)
-            const response = await post(invitations); 
-            console.log('response: ', response); 
+            const response =  await post(invitations);
+            console.log('response: ', response);
         }
     } catch(err) {
         console.log('error: ', err);
@@ -112,4 +113,4 @@ async function app() {
     
 }
 
-app(); 
+app();
