@@ -10,6 +10,22 @@ const get = async() => {
     }
 }
 
+const post =  async (data) => {
+    const options = {
+        method: 'post',
+        body: JSON.stringify(data),
+        headers: {'Content-Type': 'application/json'},
+    }
+
+    try {
+        const response = await fetch('https://candidate.hubteam.com/candidateTest/v3/problem/result?userKey=76d1f87164559ae4dabbaf752f14',
+            options);
+        return response.json();
+    } catch (error) {
+        console.log(error);
+    }
+}
+
 class Partner { 
     constructor({ availableDates, country, email }) { 
         this.availableDates = availableDates;
@@ -85,8 +101,9 @@ async function app() {
         const { partners } = await get();
         if(partners) {
             const invitations = createInvitations(partners);
-            console.log('invitations: ', invitations)
-            //TODO: Post created invitations to api  
+            //console.log('invitations: ', invitations)
+            const response = await post(invitations); 
+            console.log('response: ', response); 
         }
     } catch(err) {
         console.log('error: ', err);
